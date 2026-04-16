@@ -1,0 +1,12 @@
+node_modules
+.next
+dist
+.vercel
+.env
+.env.local
+.env.*
+.git
+Dockerfile
+.DS_Store
+npm-debug.log
+yarn-error.log

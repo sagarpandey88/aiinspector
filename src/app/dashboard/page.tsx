@@ -11,16 +11,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-async function getStats(): Promise<StatsResponse | null> {
+async function getStats(): Promise<StatsResponse | { error: string } | null> {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"}/api/stats`,
       { cache: "no-store" }
     );
-    if (!res.ok) return null;
+    if (!res.ok) {
+      let bodyText = "";
+      try {
+        bodyText = await res.text();
+      } catch (e) {
+        bodyText = res.statusText || `HTTP ${res.status}`;
+      }
+      return { error: `Stats API error ${res.status}: ${bodyText}` };
+    }
     return res.json();
-  } catch {
-    return null;
+  } catch (err: unknown) {
+    return { error: err instanceof Error ? err.message : String(err) };
   }
 }
 
@@ -43,7 +51,7 @@ function CategoryBadge({ category }: { category: string | null }) {
 export default async function DashboardPage() {
   const stats = await getStats();
 
-  if (!stats) {
+  if (!stats || (stats && "error" in stats)) {
     return (
       <main className="min-h-screen bg-gray-50 p-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">AI Inspector Dashboard</h1>
@@ -53,6 +61,9 @@ export default async function DashboardPage() {
             Make sure PostgreSQL is running and <code>.env.local</code> is configured, then run{" "}
             <code>psql … -f schema.sql</code>.
           </p>
+          {stats && "error" in stats ? (
+            <pre className="mt-3 p-3 bg-white rounded border text-xs text-red-800 overflow-auto">{stats.error}</pre>
+          ) : null}
         </div>
       </main>
     );

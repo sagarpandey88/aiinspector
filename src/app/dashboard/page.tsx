@@ -28,7 +28,7 @@ async function getStats(): Promise<StatsResponse | { error: string } | null> {
     }
     return res.json();
   } catch (err: unknown) {
-    return { error: err instanceof Error ? JSON.stringify(err) : String(err) };
+    return { error: err instanceof Error ? JSON.stringify(err, Object.getOwnPropertyNames(err)) : String(err) };
   }
 }
 

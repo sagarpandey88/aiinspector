@@ -115,7 +115,9 @@ export async function GET(): Promise<NextResponse> {
     });
   } catch (err) {
     console.error("[aiinspector] Stats query failed:", err);
-    return NextResponse.json({ error: "Database error" }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
+    return NextResponse.json({ error: message, stack }, { status: 500 });
   }
 }
 
@@ -127,6 +129,8 @@ export async function DELETE(): Promise<NextResponse> {
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[aiinspector] Failed to clear request_logs:", err);
-    return NextResponse.json({ error: "Could not clear database" }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
+    return NextResponse.json({ error: message, stack }, { status: 500 });
   }
 }
